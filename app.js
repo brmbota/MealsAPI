@@ -1,9 +1,15 @@
 const express = require("express");
 const morgan = require("morgan");
 const bodyParser = require("body-parser");
-
+const mongoose = require("mongoose");
+require("dotenv").config();
 const mealsRoute = require("./routes/meals");
  
+mongoose.connect(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@meals-rest-api.ytsd8.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`,
+{
+    useNewUrlParser: true
+});
+
 const app= express();
 //Added logger and body parser
 app.use(morgan("dev"));
