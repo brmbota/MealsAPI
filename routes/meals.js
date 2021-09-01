@@ -7,15 +7,33 @@ const router = express.Router();
 //GET ROUTE /meals
 router.get("/", (req, res, next) => {       //daje sve recepte iz baze
     Meal.find()
-    .exec()
-    .then(doc => {
-        console.log(doc);
-        res.status(200).json(doc);
-    })
-    .catch(err=>{
-        console.log(err);
-        res.status(500).json({error:err});
-    });
+        .select("-__v")
+        .exec()
+        .then(docs => {
+            const response = {
+                count: docs.length,
+                meals: docs.map(doc => {
+                    return {
+                        id: doc._id,
+                        type: doc.type,
+                        name: doc.name,
+                        ingredients: doc.ingredients,
+                        preparation: doc.preparation,
+                        request: {
+                            method: "GET",
+                            url: `http://localhost:3000/meals/${doc._id}`,
+                            desc: "direct request to this meal"
+                        }
+                    }
+                })
+            }
+            console.log(response);
+            res.status(200).json(response);
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).json({ error: err });
+        });
 });
 //POST ROUTE /meals
 router.post("/", (req, res, next) => {              //UBACIVANJE RECEPTA U BAZU
@@ -31,15 +49,15 @@ router.post("/", (req, res, next) => {              //UBACIVANJE RECEPTA U BAZU
             .save()
             .then(result => {
                 console.log(result);
-                res.status(200).json({
-                    message: "Uspesno dodat recept u bazu",
+                res.status(201).json({
+                    message: "Successfully added new recipe",
                 });
             })
             .catch(err => {
                 console.log(err);
                 res.status(500).json({ error: err });
             });
-        
+
     } else {
         res.status(406).json({
             message: "Type mora biti breakfast/lunch/dinner",
@@ -52,6 +70,7 @@ router.post("/", (req, res, next) => {              //UBACIVANJE RECEPTA U BAZU
 router.get("/:id", (req, res, next) => {
     const id = req.params.id;
     Meal.findById(id)
+        .select("-__v")
         .exec()
         .then(doc => {
             console.log(doc);
