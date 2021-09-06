@@ -35,6 +35,7 @@ router.get("/", (req, res, next) => {       //daje sve recepte iz baze
             res.status(500).json({ error: err });
         });
 });
+
 //POST ROUTE /meals
 router.post("/", (req, res, next) => {              //UBACIVANJE RECEPTA U BAZU
     const meal = new Meal({
@@ -63,9 +64,46 @@ router.post("/", (req, res, next) => {              //UBACIVANJE RECEPTA U BAZU
             message: "Type mora biti breakfast/lunch/dinner",
         });
     }
-
-
 });
+
+//GET ROUTE /meals/breakfast
+router.get("/breakfast", (req, res, next) => {
+    Meal.find({"type":"breakfast"})
+    .select("-__v")
+    .exec()
+    .then(docs => {
+        const response = {
+            count: docs.length,
+            meals: docs.map(doc => {
+                return {
+                    id: doc._id,
+                    type: doc.type,
+                    name: doc.name,
+                    ingredients: doc.ingredients,
+                    preparation: doc.preparation,
+                    request: {
+                        method: "GET",
+                        url: `http://localhost:3000/meals/${doc._id}`,
+                        desc: "direct request to this meal"
+                    }
+                }
+            })
+        }
+        console.log(response);
+        res.status(200).json(response);
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({ error: err });
+    });
+});
+//GET ROUTE /meals/random
+router.get("/random", (req, res, next) => {
+    res.status(200).json({
+        message: "It works! here is random recipe"
+    });
+});
+
 //GET ROUTE /meals/:id                                  //BIRANJE RECEPTA PO id
 router.get("/:id", (req, res, next) => {
     const id = req.params.id;
@@ -81,23 +119,12 @@ router.get("/:id", (req, res, next) => {
             res.status(500).json({ error: err });
         });
 });
-//GET ROUTE /meals/random
-router.get("/random", (req, res, next) => {
-    res.status(200).json({
-        message: "It works! here is random recipe"
-    });
-});
-//GET ROUTE /meals/breakfast
-router.get("/breakfast", (req, res, next) => {
-    res.status(200).json({
-        message: "It works! Breakfast"
-    });
-});
+
 //GET ROUTE /meals/breakfast/:id
 router.get("/breakfast/:id", (req, res, next) => {
     res.status(200).json({
         id: req.params.id,
-        message: "It works! Breakfast"
+        message: `It works here is breakfast number ${req.params.id}`
     });
 });
 //GET ROUTE /meals/breakfast/random
