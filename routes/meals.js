@@ -21,7 +21,7 @@ router.get("/", (req, res, next) => {       //daje sve recepte iz baze
                         preparation: doc.preparation,
                         request: {
                             method: "GET",
-                            url: `http://localhost:3000/meals/${doc._id}`,
+                            url: `http://91.109.116.4:4007/meals/${doc._id}`,
                             desc: "direct request to this meal"
                         }
                     }
@@ -35,7 +35,6 @@ router.get("/", (req, res, next) => {       //daje sve recepte iz baze
             res.status(500).json({ error: err });
         });
 });
-
 //POST ROUTE /meals
 router.post("/", (req, res, next) => {              //UBACIVANJE RECEPTA U BAZU
     const meal = new Meal({
@@ -65,7 +64,6 @@ router.post("/", (req, res, next) => {              //UBACIVANJE RECEPTA U BAZU
         });
     }
 });
-
 //GET ROUTE /meals/breakfast
 router.get("/breakfast", (req, res, next) => {
     Meal.find({"type":"breakfast"})
@@ -83,7 +81,7 @@ router.get("/breakfast", (req, res, next) => {
                     preparation: doc.preparation,
                     request: {
                         method: "GET",
-                        url: `http://localhost:3000/meals/${doc._id}`,
+                        url: `http://91.109.116.4:4007/meals/${doc._id}`,
                         desc: "direct request to this meal"
                     }
                 }
@@ -97,13 +95,68 @@ router.get("/breakfast", (req, res, next) => {
         res.status(500).json({ error: err });
     });
 });
-//GET ROUTE /meals/random
-router.get("/random", (req, res, next) => {
-    res.status(200).json({
-        message: "It works! here is random recipe"
+//GET ROUTE /meals/lunch
+router.get("/lunch", (req, res, next) => {
+    Meal.find({"type":"lunch"})
+    .select("-__v")
+    .exec()
+    .then(docs => {
+        const response = {
+            count: docs.length,
+            meals: docs.map(doc => {
+                return {
+                    id: doc._id,
+                    type: doc.type,
+                    name: doc.name,
+                    ingredients: doc.ingredients,
+                    preparation: doc.preparation,
+                    request: {
+                        method: "GET",
+                        url: `http://91.109.116.4:4007/meals/${doc._id}`,
+                        desc: "direct request to this meal"
+                    }
+                }
+            })
+        }
+        console.log(response);
+        res.status(200).json(response);
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({ error: err });
     });
 });
-
+//GET ROUTE /meals/dinner
+router.get("/dinner", (req, res, next) => {
+    Meal.find({"type":"dinner"})
+    .select("-__v")
+    .exec()
+    .then(docs => {
+        const response = {
+            count: docs.length,
+            meals: docs.map(doc => {
+                return {
+                    id: doc._id,
+                    type: doc.type,
+                    name: doc.name,
+                    ingredients: doc.ingredients,
+                    preparation: doc.preparation,
+                    request: {
+                        method: "GET",
+                        url: `http://91.109.116.4:4007/meals/${doc._id}`,
+                        desc: "direct request to this meal"
+                    }
+                }
+            })
+        }
+        console.log(response);
+        res.status(200).json(response);
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({ error: err });
+    });
+});
 //GET ROUTE /meals/:id                                  //BIRANJE RECEPTA PO id
 router.get("/:id", (req, res, next) => {
     const id = req.params.id;
@@ -118,43 +171,5 @@ router.get("/:id", (req, res, next) => {
             console.log(err);
             res.status(500).json({ error: err });
         });
-});
-
-//GET ROUTE /meals/breakfast/:id
-router.get("/breakfast/:id", (req, res, next) => {
-    res.status(200).json({
-        id: req.params.id,
-        message: `It works here is breakfast number ${req.params.id}`
-    });
-});
-//GET ROUTE /meals/breakfast/random
-router.get("/breakfast/random", (req, res, next) => {
-    res.status(200).json({
-        message: "It works! Breakfast random"
-    });
-});
-//GET ROUTE /meals/lunch
-router.get("/lunch", (req, res, next) => {
-    res.status(200).json({
-        message: "It works! Lunch"
-    });
-});
-//GET ROUTE /meals/lunch/random
-router.get("/lunch/random", (req, res, next) => {
-    res.status(200).json({
-        message: "It works! Lunch random"
-    });
-});
-//GET ROUTE /meals/dinner
-router.get("/dinner", (req, res, next) => {
-    res.status(200).json({
-        message: "It works! Dinner"
-    });
-});
-//GET ROUTE /meals/dinner/random
-router.get("/dinner/random", (req, res, next) => {
-    res.status(200).json({
-        message: "It works! Dinner random!"
-    });
 });
 module.exports = router;
